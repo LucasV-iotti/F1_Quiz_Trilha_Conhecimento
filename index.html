@@ -319,7 +319,7 @@ input[type=text]:focus{border-color:#3b4250; box-shadow:0 0 0 3px rgba(225,6,0,.
   .card.on-track{ width:94%; }
 }
 </style></head>
-<body>
+<body><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
 <header class="app-header">
 <div class="flag"></div>
 <h1 class="brand"><span aria-hidden="" class="car">🏎️</span> F1 Quiz – Trilha do Conhecimento</h1>
@@ -490,7 +490,6 @@ input[type=text]:focus{border-color:#3b4250; box-shadow:0 0 0 3px rgba(225,6,0,.
 </section>
 </main>
 <script src="script.js"></script>
-
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
 <script>
   const supabaseUrl = 'https://phmpoizlkrwzouydkopp.supabase.co';
@@ -791,6 +790,26 @@ window.addEventListener('DOMContentLoaded', ()=>{
       updateCarProgress();
     }
   }, {passive:true});
+});
+
+const supabaseUrl = 'https://phmpoizlkrwzouydkopp.supabase.co';
+const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBobXBvaXpsa3J3em91eWRrb3BwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTYxNDExOTMsImV4cCI6MjA3MTcxNzE5M30.fcbEM3ekrx6UP-MPWA7xqLzvxPihzEJQhCQxEKt1Qf0';
+const supabase = supabase.createClient(supabaseUrl, supabaseKey);
+
+// Verifica conexão e exibe status
+supabase.from('Quiz F1 Trilha do Conhecimento').select('*').limit(1).then(({ error }) => {
+  const statusDiv = document.createElement('div');
+  statusDiv.textContent = error ? 'Supabase: OFFLINE' : 'Supabase: ONLINE';
+  statusDiv.style.position = 'fixed';
+  statusDiv.style.top = '10px';
+  statusDiv.style.right = '10px';
+  statusDiv.style.padding = '6px 12px';
+  statusDiv.style.background = error ? '#ff5858' : '#2ecc71';
+  statusDiv.style.color = '#fff';
+  statusDiv.style.fontWeight = 'bold';
+  statusDiv.style.borderRadius = '6px';
+  statusDiv.style.zIndex = '9999';
+  document.body.appendChild(statusDiv);
 });
 </script></body>
 </html>
