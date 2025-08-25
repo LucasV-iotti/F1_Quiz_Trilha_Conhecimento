@@ -271,3 +271,52 @@ window.addEventListener('DOMContentLoaded', ()=>{
     }
   }, {passive:true});
 });
+
+
+let tempoInicio;
+
+document.getElementById('btnGoQuiz').addEventListener('click', () => {
+  tempoInicio = Date.now();
+});
+
+async function salvarDadosNoSupabase(tempoFinal) {
+  const { data, error } = await supabase
+    .from('Quiz F1 Trilha do Conhecimento')
+    .insert([{
+      nome: state.playerName,
+      cpf: state.cpf,
+      pontuacao: state.score,
+      acertos: state.hits,
+      erros: state.miss,
+      tempo_final: tempoFinal,
+      respostas: JSON.stringify(state.respostas || [])
+    }]);
+
+  if (error) {
+    console.error('Erro ao salvar no Supabase:', error);
+  } else {
+    console.log('Dados salvos com sucesso:', data);
+  }
+}
+
+const originalFinish = finish;
+finish = function() {
+  const tempoFinal = Math.floor((Date.now() - tempoInicio) / 1000);
+  salvarDadosNoSupabase(tempoFinal);
+  originalFinish();
+};
+
+const originalHandleAnswer = handleAnswer;
+handleAnswer = function(idx, el) {
+  const q = questions[state.current];
+  const isCorrect = idx === q.answer;
+
+  if (!state.respostas) state.respostas = [];
+  state.respostas.push({
+    pergunta: q.q,
+    respostaSelecionada: q.options[idx],
+    correta: isCorrect
+  });
+
+  originalHandleAnswer(idx, el);
+};
