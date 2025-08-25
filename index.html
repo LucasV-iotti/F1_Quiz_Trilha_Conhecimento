@@ -319,7 +319,7 @@ input[type=text]:focus{border-color:#3b4250; box-shadow:0 0 0 3px rgba(225,6,0,.
   .card.on-track{ width:94%; }
 }
 </style></head>
-<body><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+<body>
 <header class="app-header">
 <div class="flag"></div>
 <h1 class="brand"><span aria-hidden="" class="car">🏎️</span> F1 Quiz – Trilha do Conhecimento</h1>
@@ -489,40 +489,28 @@ input[type=text]:focus{border-color:#3b4250; box-shadow:0 0 0 3px rgba(225,6,0,.
 </div>
 </section>
 </main>
-<script src="script.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+
+<!-- Carregando Supabase apenas uma vez -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
 <script>
-  const supabaseUrl = 'https://phmpoizlkrwzouydkopp.supabase.co';
-  const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBobXBvaXpsa3J3em91eWRrb3BwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTYxNDExOTMsImV4cCI6MjA3MTcxNzE5M30.fcbEM3ekrx6UP-MPWA7xqLzvxPihzEJQhCQxEKt1Qf0';
-  const supabase = supabase.createClient(supabaseUrl, supabaseKey);
-
-  async function verificarConexaoSupabase() {
-    try {
-      const { error } = await supabase.from('Quiz F1 Trilha do Conhecimento').select('*').limit(1);
-      const statusEl = document.createElement('div');
-      statusEl.textContent = error ? 'Supabase: OFFLINE' : 'Supabase: ONLINE';
-      statusEl.style.position = 'fixed';
-      statusEl.style.top = '10px';
-      statusEl.style.right = '10px';
-      statusEl.style.padding = '6px 12px';
-      statusEl.style.background = error ? '#e10600' : '#2ecc71';
-      statusEl.style.color = '#fff';
-      statusEl.style.fontWeight = 'bold';
-      statusEl.style.borderRadius = '6px';
-      statusEl.style.zIndex = '9999';
-      document.body.appendChild(statusEl);
-    } catch (e) {
-      console.error('Erro ao verificar Supabase:', e);
-    }
-  }
-
-  document.addEventListener('DOMContentLoaded', verificarConexaoSupabase);
-</script>
-<script>// F1 Quiz – telas turbinadas + pista larga/baixa + carro no traçado central do SVG
+// F1 Quiz – telas turbinadas + pista larga/baixa + carro no traçado central do SVG
 const $  = (sel) => document.querySelector(sel);
 const $$ = (sel) => document.querySelectorAll(sel);
 
-/* ===== Estado do jogo ===== */
+// ===== CONFIGURAÇÃO SUPABASE =====
+const supabaseUrl = 'https://phmpoizlkrwzouydkopp.supabase.co';
+const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBobXBvaXpsa3J3em91eWRrb3BwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTYxNDExOTMsImV4cCI6MjA3MTcxNzE5M30.fcbEM3ekrx6UP-MPWA7xqLzvxPihzEJQhCQxEKt1Qf0';
+
+// Aguarda carregamento do Supabase
+let supabase;
+if (typeof window.supabase !== 'undefined') {
+  supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
+} else {
+  console.error('Supabase não carregou corretamente');
+}
+
+// ===== ESTADO DO JOGO =====
 let state = {
   playerName: '',
   cpf: '',
@@ -530,9 +518,12 @@ let state = {
   current: 0,
   hits: 0,
   miss: 0,
+  startTime: null,
+  endTime: null,
+  answers: [] // Para armazenar as respostas
 };
 
-/* ===== Perguntas (do seu arquivo) ===== */
+// ===== PERGUNTAS =====
 const questions = [
   { q:'1. Qual é um dos principais riscos do uso do cartão de crédito?', options:['A) Não poder parcelar compras','B) Entrar no crédito rotativo com juros altos','C) Não ter limite para compras','D) Não poder usar em compras online'], answer:1 },
   { q:'2. O cheque especial é um tipo de crédito ________ oferecido pelo banco, ligado diretamente à conta corrente.', options:['A) parcelado','B) automático','C) garantido','D) consignado'], answer:1 },
@@ -546,7 +537,73 @@ const questions = [
   { q:'10. Mesmo após pagar a dívida, o cliente pode ter dificuldade para conseguir crédito devido ao ________.', options:['A) aumento do limite','B) histórico negativo','C) cancelamento do contrato','D) falta de cadastro'], answer:1 },
 ];
 
-/* ===== Utilidades ===== */
+// ===== FUNÇÃO PARA SALVAR NO SUPABASE =====
+async function salvarResultadoSupabase() {
+  try {
+    if (!supabase) {
+      console.error('Supabase não está disponível');
+      mostrarStatusSalvamento('Banco de dados indisponível', false);
+      return;
+    }
+
+    const tempoFinal = state.endTime ? Math.round((state.endTime - state.startTime) / 1000) : 0;
+    
+    const dados = {
+      nome: state.playerName,
+      cpf: state.cpf,
+      pontuacao: state.score,
+      acertos: state.hits,
+      erros: state.miss,
+      tempo_final: tempoFinal,
+      respostas: state.answers
+    };
+
+    console.log('Tentando salvar dados:', dados);
+
+    const { data, error } = await supabase
+      .from('Quiz F1 Trilha do Conhecimento')
+      .insert([dados]);
+
+    if (error) {
+      console.error('Erro ao salvar no Supabase:', error);
+      mostrarStatusSalvamento('Erro ao salvar resultado', false);
+    } else {
+      console.log('Resultado salvo com sucesso:', data);
+      mostrarStatusSalvamento('Resultado salvo com sucesso!', true);
+    }
+  } catch (err) {
+    console.error('Erro inesperado:', err);
+    mostrarStatusSalvamento('Erro ao conectar com banco de dados', false);
+  }
+}
+
+// ===== FUNÇÃO PARA MOSTRAR STATUS DO SALVAMENTO =====
+function mostrarStatusSalvamento(mensagem, sucesso) {
+  const statusDiv = document.createElement('div');
+  statusDiv.textContent = mensagem;
+  statusDiv.style.position = 'fixed';
+  statusDiv.style.bottom = '20px';
+  statusDiv.style.right = '20px';
+  statusDiv.style.padding = '12px 16px';
+  statusDiv.style.background = sucesso ? '#2ecc71' : '#e10600';
+  statusDiv.style.color = '#fff';
+  statusDiv.style.fontWeight = 'bold';
+  statusDiv.style.borderRadius = '8px';
+  statusDiv.style.zIndex = '9999';
+  statusDiv.style.boxShadow = '0 4px 12px rgba(0,0,0,0.3)';
+  statusDiv.style.animation = 'slideInUp 0.3s ease';
+  
+  document.body.appendChild(statusDiv);
+  
+  setTimeout(() => {
+    statusDiv.style.opacity = '0';
+    statusDiv.style.transform = 'translateY(20px)';
+    statusDiv.style.transition = 'all 0.3s ease';
+    setTimeout(() => statusDiv.remove(), 300);
+  }, 3000);
+}
+
+// ===== UTILIDADES =====
 function maskCPF(value){
   return value.replace(/\D/g,'').slice(0,11)
     .replace(/(\d{3})(\d)/,'$1.$2')
@@ -568,7 +625,7 @@ function isValidCPF(cpf){
   return true;
 }
 function showScreen(id){
-  $$('.screen').forEach(s=>s.classList.remove('show'));
+  $('.screen').forEach(s=>s.classList.remove('show'));
   $(id).classList.add('show');
 }
 function updateHUD(){
@@ -577,7 +634,7 @@ function updateHUD(){
   $('#score').textContent = state.score;
 }
 
-/* ===== Carro no traçado central do SVG ===== */
+// ===== CARRO NO TRAÇADO CENTRAL DO SVG =====
 let routePath, totalLen, raceCar;
 function initTrackRefs(){
   routePath = document.querySelector('#route');
@@ -598,7 +655,7 @@ function updateCarProgress(){
   placeCarByProgress(t);
 }
 
-/* ===== Renderização ===== */
+// ===== RENDERIZAÇÃO =====
 function renderQuestion(){
   const q = questions[state.current];
   $('#questionText').textContent = q.q;
@@ -620,6 +677,17 @@ function handleAnswer(idx, el){
   const q = questions[state.current];
   const isCorrect = idx === q.answer;
 
+  // Armazena a resposta
+  state.answers.push({
+    pergunta: state.current + 1,
+    pergunta_texto: q.q,
+    resposta_escolhida: idx,
+    resposta_texto: q.options[idx],
+    resposta_correta: q.answer,
+    resposta_correta_texto: q.options[q.answer],
+    acertou: isCorrect
+  });
+
   if (isCorrect){
     state.score += 10; state.hits += 1;
     $('#feedback').textContent = '✔ Resposta correta! +10 pontos';
@@ -631,12 +699,12 @@ function handleAnswer(idx, el){
     $('#feedback').className = 'feedback no';
     el.classList.add('wrong');
     // destaca também a correta
-    const buttons = $$('.option');
+    const buttons = $('.option');
     if (buttons[q.answer]) buttons[q.answer].classList.add('correct');
   }
 
   // bloqueia múltiplos cliques
-  $$('.option').forEach(b=> b.disabled = true);
+  $('.option').forEach(b=> b.disabled = true);
 
   // avança
   setTimeout(()=>{
@@ -649,8 +717,9 @@ function handleAnswer(idx, el){
   }, 900);
 }
 
-/* ===== Tela Final ===== */
-function finish(){
+// ===== TELA FINAL =====
+async function finish(){
+  state.endTime = new Date();
   updateCarProgress(); // garante posição final
 
   $('#outName').textContent = state.playerName;
@@ -679,9 +748,12 @@ function finish(){
 
   showScreen('#screen-result');
   launchConfetti(); // celebração
+  
+  // ===== SALVA NO SUPABASE =====
+  await salvarResultadoSupabase();
 }
 
-/* ===== Largada (start lights) ===== */
+// ===== LARGADA (start lights) =====
 async function startSequenceThenBegin(){
   showScreen('#screen-quiz');
   initTrackRefs();          // garante refs do SVG no momento da tela
@@ -707,11 +779,12 @@ async function startSequenceThenBegin(){
   go.style.opacity = '0';
 
   // inicia a corrida
+  state.startTime = new Date();
   renderQuestion();
 }
 function wait(ms){ return new Promise(res=> setTimeout(res, ms)); }
 
-/* ===== Confete ===== */
+// ===== CONFETE =====
 function launchConfetti(){
   const container = $('#confetti');
   container.innerHTML = '';
@@ -736,9 +809,12 @@ function launchConfetti(){
   setTimeout(()=> container.innerHTML = '', 8000);
 }
 
-/* ===== Reset ===== */
+// ===== RESET =====
 function resetGame(){
-  state = { playerName:'', cpf:'', score:0, current:0, hits:0, miss:0 };
+  state = { 
+    playerName:'', cpf:'', score:0, current:0, hits:0, miss:0, 
+    startTime: null, endTime: null, answers: []
+  };
   $('#playerName').value = '';
   $('#playerCPF').value  = '';
   $('#btnStart').disabled= true;
@@ -747,11 +823,65 @@ function resetGame(){
   showScreen('#screen-start');
 }
 
-/* ===== Inicialização & Eventos ===== */
+// ===== VERIFICAÇÃO DE CONEXÃO COM SUPABASE =====
+async function verificarConexaoSupabase() {
+  try {
+    if (!supabase) {
+      mostrarStatusConexao('Supabase não carregou', false);
+      return;
+    }
+    
+    const { data, error } = await supabase.from('Quiz F1 Trilha do Conhecimento').select('*').limit(1);
+    mostrarStatusConexao(error ? 'Supabase: OFFLINE' : 'Supabase: ONLINE', !error);
+  } catch (e) {
+    console.error('Erro ao verificar Supabase:', e);
+    mostrarStatusConexao('Erro de conexão', false);
+  }
+}
+
+function mostrarStatusConexao(texto, sucesso) {
+  const statusEl = document.createElement('div');
+  statusEl.textContent = texto;
+  statusEl.style.cssText = `
+    position: fixed;
+    top: 10px;
+    right: 10px;
+    padding: 6px 12px;
+    background: ${sucesso ? '#2ecc71' : '#e10600'};
+    color: #fff;
+    font-weight: bold;
+    border-radius: 6px;
+    z-index: 9999;
+    font-size: 12px;
+  `;
+  document.body.appendChild(statusEl);
+  
+  // Remove após 5 segundos
+  setTimeout(() => {
+    if (statusEl.parentNode) {
+      statusEl.remove();
+    }
+  }, 5000);
+}
+
+// ===== INICIALIZAÇÃO & EVENTOS =====
 window.addEventListener('DOMContentLoaded', ()=>{
+  console.log('DOM carregado');
+  
+  // Aguarda um pouco para garantir que o Supabase carregou
+  setTimeout(() => {
+    verificarConexaoSupabase();
+  }, 500);
+
   const nameInput = $('#playerName');
   const cpfInput  = $('#playerCPF');
   const btnStart  = $('#btnStart');
+
+  console.log('Elementos encontrados:', {
+    nameInput: !!nameInput,
+    cpfInput: !!cpfInput,
+    btnStart: !!btnStart
+  });
 
   function checkReady(){
     const okName = nameInput.value.trim().length >= 2;
@@ -764,20 +894,25 @@ window.addEventListener('DOMContentLoaded', ()=>{
     // status visuais
     $('#nameStatus').className = 'status ' + (okName ? 'ok':'no');
     $('#cpfStatus').className  = 'status ' + (okCPF  ? 'ok':'no');
+    
+    console.log('Check ready:', { okName, okCPF, disabled: btnStart.disabled });
   }
 
   nameInput.addEventListener('input', checkReady);
   cpfInput .addEventListener('input', checkReady);
 
   btnStart.addEventListener('click', ()=>{
+    console.log('Botão iniciar clicado');
     state.playerName = nameInput.value.trim();
     state.cpf        = cpfInput.value;
     showScreen('#screen-rules');
   });
 
   $('#btnGoQuiz').addEventListener('click', ()=>{
+    console.log('Iniciando quiz');
     // zera estado e começa sequência de largada
     state.score = 0; state.current = 0; state.hits = 0; state.miss = 0;
+    state.answers = []; state.startTime = null; state.endTime = null;
     startSequenceThenBegin();
   });
 
@@ -790,26 +925,10 @@ window.addEventListener('DOMContentLoaded', ()=>{
       updateCarProgress();
     }
   }, {passive:true});
-});
 
-const supabaseUrl = 'https://phmpoizlkrwzouydkopp.supabase.co';
-const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBobXBvaXpsa3J3em91eWRrb3BwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTYxNDExOTMsImV4cCI6MjA3MTcxNzE5M30.fcbEM3ekrx6UP-MPWA7xqLzvxPihzEJQhCQxEKt1Qf0';
-const supabase = supabase.createClient(supabaseUrl, supabaseKey);
-
-// Verifica conexão e exibe status
-supabase.from('Quiz F1 Trilha do Conhecimento').select('*').limit(1).then(({ error }) => {
-  const statusDiv = document.createElement('div');
-  statusDiv.textContent = error ? 'Supabase: OFFLINE' : 'Supabase: ONLINE';
-  statusDiv.style.position = 'fixed';
-  statusDiv.style.top = '10px';
-  statusDiv.style.right = '10px';
-  statusDiv.style.padding = '6px 12px';
-  statusDiv.style.background = error ? '#ff5858' : '#2ecc71';
-  statusDiv.style.color = '#fff';
-  statusDiv.style.fontWeight = 'bold';
-  statusDiv.style.borderRadius = '6px';
-  statusDiv.style.zIndex = '9999';
-  document.body.appendChild(statusDiv);
+  // Executa check inicial
+  checkReady();
 });
-</script></body>
+</script>
+</body>
 </html>
