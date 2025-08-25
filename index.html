@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>F1 Quiz – Trilha do Conhecimento</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header class="app-header">
+    <div class="flag"></div>
+    <h1 class="brand"><span class="car" aria-hidden>🏎️</span> F1 Quiz – Trilha do Conhecimento</h1>
+  </header>
+
+  <main>
+    <!-- TELA 1: NOME E CPF -->
+    <section id="screen-start" class="screen show">
+      <div class="hero">
+        <div class="hero-bg"></div>
+        <div class="start-grid">
+          <div class="hero-left">
+            <h2 class="hero-title">Hora da Largada</h2>
+            <p class="hero-sub">Entre no cockpit, ajuste o cinto e <strong>prepare-se para acelerar</strong> no conhecimento!</p>
+            <div class="lights-preview" aria-hidden="true">
+              <span class="light"></span><span class="light"></span><span class="light"></span><span class="light"></span><span class="light"></span>
+            </div>
+          </div>
+
+          <div class="form-card glass">
+            <h3 class="card-title">Identificação do Piloto</h3>
+            <form id="start-form" autocomplete="on" novalidate>
+              <div class="field">
+                <label for="playerName">Nome</label>
+                <div class="input-wrap">
+                  <input type="text" id="playerName" name="playerName" placeholder="Seu nome" required />
+                  <span class="status" id="nameStatus" aria-hidden="true"></span>
+                </div>
+                <small class="hint">Mínimo de 2 caracteres.</small>
+              </div>
+
+              <div class="field">
+                <label for="playerCPF">CPF</label>
+                <div class="input-wrap">
+                  <input type="text" id="playerCPF" name="playerCPF" inputmode="numeric" placeholder="000.000.000-00" maxlength="14" required />
+                  <span class="status" id="cpfStatus" aria-hidden="true"></span>
+                </div>
+                <small class="hint">Formato: 000.000.000-00 (validação automática).</small>
+              </div>
+
+              <button id="btnStart" type="button" class="btn primary xl" disabled>
+                <span class="btn-lights"><i></i><i></i><i></i><i></i><i></i></span>
+                Iniciar Largada
+              </button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- TELA 2: REGRAS -->
+    <section id="screen-rules" class="screen">
+      <div class="rules-wrap glass">
+        <h2 class="section-title">Pit Stop: Regras da Corrida</h2>
+        <div class="rules-grid">
+          <article class="rule">
+            <div class="rule-icon">🏁</div>
+            <div class="rule-text">
+              10 perguntas. Uma volta por pergunta. Complete o circuito com o melhor desempenho.
+            </div>
+          </article>
+          <article class="rule">
+            <div class="rule-icon green">✅</div>
+            <div class="rule-text">
+              Acertou? <span class="badge plus">+10 pts</span> – seu carro ganha impulso!
+            </div>
+          </article>
+          <article class="rule">
+            <div class="rule-icon red">⚠️</div>
+            <div class="rule-text">
+              Errou? <span class="badge minus">−5 pts</span> – hora de um pit stop mental.
+            </div>
+          </article>
+          <article class="rule">
+            <div class="rule-icon">⏩</div>
+            <div class="rule-text">
+              Ao escolher, você recebe feedback e <strong>avança automaticamente</strong> para a próxima volta.
+            </div>
+          </article>
+          <article class="rule">
+            <div class="rule-icon">📊</div>
+            <div class="rule-text">
+              No final, exibimos <strong>pontuação, acertos e erros</strong> com sua medalha no pódio.
+            </div>
+          </article>
+        </div>
+
+        <div class="legend">
+          <span class="badge plus">+10</span> <span>Acerto</span>
+          <span class="sep">•</span>
+          <span class="badge minus">−5</span> <span>Erro</span>
+        </div>
+
+        <button id="btnGoQuiz" class="btn secondary lg">
+          <span class="btn-lights"><i></i><i></i><i></i><i></i><i></i></span>
+          Começar a Corrida
+        </button>
+      </div>
+    </section>
+
+    <!-- TELA 3+: QUIZ COM PISTA -->
+    <section id="screen-quiz" class="screen">
+      <div class="hud">
+        <div class="lap"><span id="lapNow">1</span>/<span id="lapTotal">10</span> voltas</div>
+        <div class="score">Pontuação: <strong id="score">0</strong></div>
+      </div>
+
+      <div class="track-wrap">
+        <!-- Parallax -->
+        <div class="bg-parallax">
+          <div class="stands"></div>
+          <div class="speedlines"></div>
+        </div>
+
+        <!-- PISTA -->
+        <svg class="track" viewBox="0 0 1000 430" preserveAspectRatio="xMidYMid meet" aria-label="Pista de corrida">
+          <defs>
+            <pattern id="checkers" width="10" height="10" patternUnits="userSpaceOnUse">
+              <rect width="10" height="10" fill="#fff"/>
+              <rect width="5" height="5" fill="#000"/>
+              <rect x="5" y="5" width="5" height="5" fill="#000"/>
+            </pattern>
+            <path id="route"
+                  d="M180,70 h640 a70,70 0 0 1 70,70 v150 a70,70 0 0 1 -70,70 h-640 a70,70 0 0 1 -70,-70 v-150 a70,70 0 0 1 70,-70 z" />
+          </defs>
+
+          <!-- Asfalto e bordas -->
+          <use href="#route" fill="none" stroke="#0f1116" stroke-width="86" stroke-linecap="round"/>
+          <use href="#route" fill="none" stroke="#2a2f37" stroke-width="34" stroke-linecap="round"/>
+          <use href="#route" fill="none" stroke="rgba(255,255,255,.08)" stroke-width="10" stroke-dasharray="24 16"/>
+          <!-- Largada/Chegada -->
+          <rect x="180" y="200" width="18" height="50" fill="url(#checkers)"/>
+
+          <!-- Carro no traçado -->
+          <g id="raceCar" class="race-car-svg" transform="translate(180,70)">
+            <g id="carIcon">
+              <rect x="-24" y="-7" width="8" height="14" rx="2" fill="#1e232b"/>
+              <rect x="16"  y="-7" width="8" height="14" rx="2" fill="#1e232b"/>
+              <rect x="-18" y="-8" width="36" height="16" rx="6" fill="#e10600"/>
+              <rect x="-6" y="-6" width="12" height="12" rx="3" fill="#292f3a"/>
+              <polygon points="18,-8 28,0 18,8" fill="#ff4d3d"/>
+            </g>
+          </g>
+        </svg>
+
+        <!-- Luzes de Largada -->
+        <div id="startLights" class="start-lights" aria-hidden="true">
+          <div class="light"></div><div class="light"></div><div class="light"></div><div class="light"></div><div class="light"></div>
+          <div class="go">GO!</div>
+        </div>
+
+        <!-- Card do Quiz no centro -->
+        <div class="card on-track">
+          <h3 id="questionText" class="question">…</h3>
+          <div id="options" class="options"></div>
+          <div id="feedback" class="feedback" aria-live="polite"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- TELA FINAL -->
+    <section id="screen-result" class="screen">
+      <div class="finish-hero">
+        <h2 class="finish-title">🏁 Bandeirada Final</h2>
+        <div class="podium glass">
+          <div class="medal" id="medal"></div>
+          <div class="summary">
+            <p><strong>Piloto:</strong> <span id="outName">—</span></p>
+            <p><strong>CPF:</strong> <span id="outCPF">—</span></p>
+          </div>
+          <div class="stats">
+            <div class="chip">Pontuação: <strong id="outScore">0</strong> pts</div>
+            <div class="chip ok">Acertos: <strong id="outHits">0</strong></div>
+            <div class="chip no">Erros: <strong id="outMiss">0</strong></div>
+          </div>
+          <p id="outBadge" class="badge msg"></p>
+          <div class="actions">
+            <button id="btnRestart" class="btn ghost">Jogar novamente</button>
+          </div>
+        </div>
+        <!-- Confete -->
+        <div id="confetti" class="confetti" aria-hidden="true"></div>
+      </div>
+    </section>
+  </main>
+
+  <script src="script.js"></script>
+</body>
+</html>

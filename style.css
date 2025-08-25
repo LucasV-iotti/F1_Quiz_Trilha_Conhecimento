@@ -1,0 +1,312 @@
+/* Fonte via CSS (não aparece como conteúdo) */
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;800&display=swap');
+
+/* ===== Tema / Variáveis ===== */
+:root{
+  --bg: #0b0c10;
+  --card: #15171c;
+  --text: #e9edf1;
+  --muted: #b2b8c2;
+  --red: #e10600;
+  --yellow: #ffdd00;
+  --green: #2ecc71;
+
+  --glass-bg: rgba(21,23,28,.5);
+  --glass-brd: rgba(255,255,255,.12);
+  --glow: 0 0 24px rgba(225,6,0,.25);
+}
+
+*{box-sizing:border-box}
+html,body{height:100%}
+body{
+  margin:0;
+  font-family:'Montserrat',system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
+  color:var(--text);
+  background: radial-gradient(1200px 600px at 110% -10%, #1b1f26 0%, var(--bg) 45%);
+}
+
+/* ===== Header ===== */
+.app-header{
+  position:sticky; top:0; z-index:5;
+  background:linear-gradient(90deg,var(--card),transparent);
+  padding:8px 16px; border-bottom:1px solid #23262c
+}
+.flag{
+  height:12px;
+  background:repeating-linear-gradient(45deg,#fff 0 10px,#000 10px 20px);
+  filter:contrast(1.2); border-radius:2px; margin-bottom:6px
+}
+.brand{margin:0; font-weight:800; letter-spacing:.3px; display:flex; align-items:center; gap:.5rem}
+.brand .car{display:inline-block; animation:car-move 5s linear infinite}
+@keyframes car-move{from{transform:translateX(-10px)}to{transform:translateX(10px)}}
+
+/* ===== Estrutura ===== */
+main{max-width:1200px; margin:20px auto; padding:0 16px}
+.screen{display:none; animation:fade .3s ease}
+.screen.show{display:block}
+@keyframes fade{from{opacity:0; transform:translateY(6px)}to{opacity:1; transform:translateY(0)}}
+
+/* ===== Botões ===== */
+.btn{
+  appearance:none; border:none; border-radius:999px;
+  padding:12px 18px; background:#2a2f37; color:var(--text);
+  font-weight:600; cursor:pointer; transition:filter .2s, transform .02s, box-shadow .2s
+}
+.btn:hover{filter:brightness(1.05)}
+.btn:active{transform:translateY(1px)}
+.btn.primary{background:linear-gradient(90deg,var(--red),#ff3b30); box-shadow:var(--glow)}
+.btn.secondary{background:linear-gradient(90deg,#0072ff,#00c6ff)}
+.btn.ghost{background:transparent; border:1px solid #2a2f37}
+.btn.xl{font-size:1.05rem; padding:14px 22px}
+.btn.lg{font-size:1.0rem; padding:12px 20px}
+.btn[disabled]{opacity:.5; cursor:not-allowed}
+
+/* Luzes decorativas nos botões */
+.btn .btn-lights{display:inline-flex; gap:4px; margin-right:8px; vertical-align:middle}
+.btn .btn-lights i{
+  width:10px; height:10px; border-radius:50%; background:#2b2b2b; display:inline-block; 
+  box-shadow:inset 0 2px 5px rgba(0,0,0,.6); border:1px solid #000
+}
+.btn:hover .btn-lights i{
+  background:#d40000; box-shadow:0 0 8px #ff1e1e, inset 0 6px 10px rgba(0,0,0,.6)
+}
+
+/* ===== Glass ===== */
+.glass{
+  background:var(--glass-bg);
+  border:1px solid var(--glass-brd);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border-radius:16px;
+  box-shadow:0 16px 40px rgba(0,0,0,.25);
+}
+
+/* ===== TELA 1: HERO START ===== */
+.hero{position:relative; overflow:hidden; border-radius:18px}
+.hero-bg{
+  position:absolute; inset:0;
+  background:
+    radial-gradient(1000px 400px at -10% 120%, rgba(225,6,0,.15), transparent 60%),
+    radial-gradient(700px 300px at 110% -15%, rgba(0,114,255,.15), transparent 60%);
+  pointer-events:none;
+}
+.start-grid{
+  position:relative; display:grid; gap:18px; padding:22px;
+  grid-template-columns: 1.1fr 1fr;
+}
+@media (max-width: 860px){ .start-grid{grid-template-columns:1fr} }
+.hero-left{padding:14px 10px}
+.hero-title{margin:0 0 8px; font-size:2rem; letter-spacing:.5px}
+.hero-sub{margin:0; color:var(--muted); line-height:1.6}
+
+.lights-preview{margin-top:14px}
+.lights-preview .light{
+  display:inline-block; width:18px; height:18px; border-radius:50%;
+  background:#2b2b2b; border:2px solid #000; margin-right:6px;
+  box-shadow: inset 0 4px 10px rgba(0,0,0,.6);
+  animation:preview 1.2s infinite;
+}
+.lights-preview .light:nth-child(2){animation-delay:.15s}
+.lights-preview .light:nth-child(3){animation-delay:.30s}
+.lights-preview .light:nth-child(4){animation-delay:.45s}
+.lights-preview .light:nth-child(5){animation-delay:.60s}
+@keyframes preview{
+  0%,60% { background:#2b2b2b; box-shadow: inset 0 4px 10px rgba(0,0,0,.6) }
+  61%,100%{ background:#d40000; box-shadow: 0 0 12px #ff1e1e, inset 0 8px 12px rgba(0,0,0,.6) }
+}
+
+.form-card{padding:18px}
+.card-title{margin:0 0 10px; font-weight:700}
+.field{margin:12px 0}
+label{display:block; margin:0 0 6px}
+.input-wrap{position:relative}
+input[type=text]{
+  width:100%; padding:14px 44px 14px 12px; border:1px solid #2a2f37; border-radius:10px;
+  background:#0f1116; color:var(--text); outline:none; transition:border-color .2s, box-shadow .2s
+}
+input[type=text]:focus{border-color:#3b4250; box-shadow:0 0 0 3px rgba(225,6,0,.15)}
+.hint{color:var(--muted); font-size:.85rem}
+.status{
+  position:absolute; right:10px; top:50%; transform:translateY(-50%);
+  width:20px; height:20px; border-radius:50%;
+  background:#2b2b2b; border:1px solid #000; box-shadow: inset 0 2px 6px rgba(0,0,0,.6)
+}
+.status.ok{background:linear-gradient(180deg,#1bd97b,#0bbd62); box-shadow:0 0 10px rgba(27,217,123,.5)}
+.status.no{background:linear-gradient(180deg,#ff5858,#e10600); box-shadow:0 0 10px rgba(225,6,0,.45)}
+
+/* ===== TELA 2: REGRAS ===== */
+.rules-wrap{padding:22px; margin:0 auto}
+.section-title{margin:0 0 14px; font-size:1.6rem}
+.rules-grid{
+  display:grid; grid-template-columns:repeat(2,1fr); gap:14px; margin-bottom:10px
+}
+@media (max-width: 720px){ .rules-grid{grid-template-columns:1fr} }
+.rule{
+  display:flex; gap:12px; align-items:flex-start; background:rgba(0,0,0,.25);
+  border:1px solid #2a2f37; border-radius:12px; padding:12px
+}
+.rule-icon{font-size:1.4rem; width:32px; height:32px; display:grid; place-items:center}
+.rule-icon.green{color:#1bd97b}
+.rule-icon.red{color:#ff5858}
+.rule-text{line-height:1.6}
+.badge{
+  display:inline-block; padding:2px 8px; border-radius:999px; font-weight:700; font-size:.9rem
+}
+.badge.plus{background:rgba(27,217,123,.12); color:#1bd97b; border:1px solid rgba(27,217,123,.35)}
+.badge.minus{background:rgba(225,6,0,.12); color:#ff5858; border:1px solid rgba(225,6,0,.35)}
+.legend{display:flex; align-items:center; gap:8px; color:var(--muted); margin:10px 0 6px}
+.legend .sep{opacity:.5}
+
+/* ===== HUD (quiz) ===== */
+.hud{
+  display:grid; grid-template-columns:110px 1fr auto;
+  gap:12px; align-items:center; margin-bottom:12px
+}
+.lap{
+  background:#0f1116; border:1px solid #2a2f37;
+  padding:8px 10px; border-radius:8px;
+  color:var(--yellow); font-weight:700
+}
+.score{font-weight:700}
+
+/* ===== Pista / Cenário ===== */
+.track-wrap{
+  position:relative;
+  aspect-ratio: 21/9;   /* mais larga e mais baixa */
+  width:100%;
+  border:1px solid #23262c;
+  border-radius:16px;
+  overflow:hidden;
+  background: radial-gradient(900px 400px at -10% 120%, #0c1018, #0a0c12 50%, #07090e 100%);
+  box-shadow: 0 20px 50px rgba(0,0,0,.35) inset, 0 8px 30px rgba(0,0,0,.25);
+  min-height: 260px;
+}
+.bg-parallax{position:absolute; inset:0; pointer-events:none; overflow:hidden}
+.stands{
+  position:absolute; inset:0 0 auto 0; height:24%;
+  background:
+    linear-gradient(to bottom, rgba(255,255,255,.05), rgba(0,0,0,.0)),
+    repeating-linear-gradient(90deg, #1c2230 0 40px, #121722 40px 80px);
+  filter:saturate(0.9) brightness(0.9);
+}
+.speedlines{
+  position:absolute; inset:auto 0 0 0; height:26%;
+  background: repeating-linear-gradient(135deg, rgba(255,255,255,.06) 0 6px, transparent 6px 30px);
+  animation:speed 4s linear infinite;
+  opacity:.35;
+}
+@keyframes speed{from{background-position:0 0} to{background-position:800px 0}}
+
+.track{position:absolute; inset:0; width:100%; height:100%; z-index:1}
+
+/* Luzes de Largada (overlay) */
+.start-lights{
+  position:absolute; inset:0;
+  display:grid; place-items:center;
+  background:rgba(0,0,0,.35);
+  opacity:0; pointer-events:none; transition:opacity .2s ease;
+  z-index:5;
+}
+.start-lights.active{opacity:1; pointer-events:auto;}
+.start-lights .light{
+  width:56px; height:56px; border-radius:50%; margin:6px; display:inline-block;
+  background:#2b2b2b; box-shadow: inset 0 4px 10px rgba(0,0,0,.6);
+  border:2px solid #000;
+}
+.start-lights .light.on{
+  background:#d40000; box-shadow: 0 0 24px #ff1e1e, inset 0 8px 14px rgba(0,0,0,.6);
+}
+.start-lights .go{
+  position:absolute; bottom:10%; font-weight:800; letter-spacing:2px;
+  color:#00e676; font-size:40px; opacity:0; transform:scale(.9);
+}
+
+/* Card do Quiz no centro da pista */
+.card{
+  background:linear-gradient(180deg,#191c22,#10131a);
+  border:1px solid #2a2f37; border-radius:16px; padding:20px;
+  box-shadow:0 6px 20px rgba(0,0,0,.25);
+  margin-top:12px;
+  animation:slideIn .3s ease;
+}
+.card.on-track{
+  position:absolute; left:50%; top:50%; transform:translate(-50%,-50%);
+  width:min(92%, 560px);
+  z-index:4; /* acima da pista e do carro */
+}
+@keyframes slideIn{from{opacity:0; transform:translateY(10px)} to{opacity:1; transform:translateY(0)}}
+.question{margin-top:0}
+.options{display:grid; grid-template-columns:1fr; gap:10px; margin-top:12px}
+@media (min-width:640px){.options{grid-template-columns:1fr 1fr}}
+.option{
+  display:block; width:100%; text-align:left; padding:14px 16px;
+  border-radius:12px; border:1px solid #2a2f37; background:#0f1116; color:var(--text);
+  cursor:pointer; transition:transform .06s, border-color .2s, background .2s
+}
+.option:hover{border-color:#3b4250; transform:translateY(-1px)}
+.option:active{transform:translateY(1px)}
+.option.correct{background:rgba(46,204,113,.16); border-color:#2ecc71}
+.option.wrong{background:rgba(225,6,0,.12); border-color:var(--red)}
+
+.feedback{min-height:28px; margin-top:10px; font-weight:700}
+.feedback.ok{color:#2ecc71}
+.feedback.no{color:#ff5858}
+
+/* ===== Tela Final: Pódio + Medalha + Confete ===== */
+.finish-hero{position:relative; overflow:hidden; border-radius:18px; padding:14px}
+.finish-title{
+  text-align:center; margin:0 0 10px;
+  background: repeating-linear-gradient(45deg,#fff 0 12px,#000 12px 24px);
+  -webkit-background-clip:text; background-clip:text; color:transparent;
+  animation:flagWave 1.6s ease-in-out infinite alternate;
+}
+@keyframes flagWave{from{letter-spacing:1px} to{letter-spacing:3px}}
+
+.podium{
+  max-width:760px; margin:0 auto; padding:18px;
+  display:grid; gap:12px;
+}
+.summary{display:flex; gap:16px; flex-wrap:wrap; color:var(--muted)}
+.stats{display:flex; gap:10px; flex-wrap:wrap}
+.chip{
+  background:#0f1116; border:1px solid #2a2f37; border-radius:999px;
+  padding:8px 12px; font-weight:600
+}
+.chip.ok{color:#1bd97b; border-color:rgba(27,217,123,.4); background:rgba(27,217,123,.08)}
+.chip.no{color:#ff5858; border-color:rgba(225,6,0,.4); background:rgba(225,6,0,.08)}
+.badge.msg{margin-top:6px}
+
+.medal{
+  width:82px; height:82px; border-radius:50%; margin:6px auto 2px;
+  display:grid; place-items:center; font-size:2rem; font-weight:800;
+  border:2px solid rgba(255,255,255,.2);
+  box-shadow:0 12px 30px rgba(0,0,0,.35), inset 0 8px 16px rgba(255,255,255,.08);
+}
+.medal.gold{ background: radial-gradient(circle at 30% 30%, #fff5b8, #f3c301 60%, #9b6b00 100%); }
+.medal.silver{ background: radial-gradient(circle at 30% 30%, #f5f7fa, #c2c8d0 60%, #7e8791 100%); }
+.medal.bronze{ background: radial-gradient(circle at 30% 30%, #ffe0c2, #c47c31 60%, #7a4b1e 100%); }
+
+/* Confete */
+.confetti{position:absolute; inset:0; pointer-events:none; overflow:hidden}
+.confetti .piece{
+  position:absolute; width:10px; height:16px; opacity:.9;
+  animation:fall linear forwards, spin linear infinite;
+}
+@keyframes fall{
+  to { transform: translateY(110vh) rotate(0deg); opacity:.98; }
+}
+@keyframes spin{
+  from{ transform: translateY(-10vh) rotate(0deg); }
+  to  { transform: translateY(110vh) rotate(720deg); }
+}
+
+/* ===== Acessibilidade – menos movimento ===== */
+@media (prefers-reduced-motion: reduce){
+  .brand .car, .speedlines, .lights-preview .light, .finish-title {animation:none}
+  .screen{animation:none}
+}
+
+/* ===== Responsividade ===== */
+@media (max-width: 420px){
+  .card.on-track{ width:94%; }
+}
