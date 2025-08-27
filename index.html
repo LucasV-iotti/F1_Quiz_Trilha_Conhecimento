@@ -1,7 +1,6 @@
 <!DOCTYPE html>
 
-<html lang="pt-BR">
-<head>
+<html lang="pt-BR"><head>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1" name="viewport"/>
 <title>F1 Quiz – Trilha do Conhecimento</title>
@@ -318,8 +317,9 @@ input[type=text]:focus{border-color:#3b4250; box-shadow:0 0 0 3px rgba(225,6,0,.
 @media (max-width: 420px){
   .card.on-track{ width:94%; }
 }
-</style></head>
-<body>
+</style><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script></head>
+
+<body><p id="status-conexao">Verificando conexão...</p>
 <header class="app-header">
 <div class="flag"></div>
 <h1 class="brand"><span aria-hidden="" class="car">🏎️</span> F1 Quiz – Trilha do Conhecimento</h1>
@@ -489,14 +489,13 @@ input[type=text]:focus{border-color:#3b4250; box-shadow:0 0 0 3px rgba(225,6,0,.
 </div>
 </section>
 </main>
-
 <script>
+
 // F1 Quiz – telas turbinadas + pista larga/baixa + carro no traçado central do SVG
 const $  = (sel) => document.querySelector(sel);
 const $$ = (sel) => document.querySelectorAll(sel);
 
-
-// ===== ESTADO DO JOGO =====
+/* ===== Estado do jogo ===== */
 let state = {
   playerName: '',
   cpf: '',
@@ -504,12 +503,9 @@ let state = {
   current: 0,
   hits: 0,
   miss: 0,
-  startTime: null,
-  endTime: null,
-  answers: [] // Para armazenar as respostas
 };
 
-// ===== PERGUNTAS =====
+/* ===== Perguntas (do seu arquivo) ===== */
 const questions = [
   { q:'1. Qual é um dos principais riscos do uso do cartão de crédito?', options:['A) Não poder parcelar compras','B) Entrar no crédito rotativo com juros altos','C) Não ter limite para compras','D) Não poder usar em compras online'], answer:1 },
   { q:'2. O cheque especial é um tipo de crédito ________ oferecido pelo banco, ligado diretamente à conta corrente.', options:['A) parcelado','B) automático','C) garantido','D) consignado'], answer:1 },
@@ -523,8 +519,7 @@ const questions = [
   { q:'10. Mesmo após pagar a dívida, o cliente pode ter dificuldade para conseguir crédito devido ao ________.', options:['A) aumento do limite','B) histórico negativo','C) cancelamento do contrato','D) falta de cadastro'], answer:1 },
 ];
 
-
-// ===== UTILIDADES =====
+/* ===== Utilidades ===== */
 function maskCPF(value){
   return value.replace(/\D/g,'').slice(0,11)
     .replace(/(\d{3})(\d)/,'$1.$2')
@@ -546,7 +541,7 @@ function isValidCPF(cpf){
   return true;
 }
 function showScreen(id){
-  $('.screen').forEach(s=>s.classList.remove('show'));
+  $$('.screen').forEach(s=>s.classList.remove('show'));
   $(id).classList.add('show');
 }
 function updateHUD(){
@@ -555,7 +550,7 @@ function updateHUD(){
   $('#score').textContent = state.score;
 }
 
-// ===== CARRO NO TRAÇADO CENTRAL DO SVG =====
+/* ===== Carro no traçado central do SVG ===== */
 let routePath, totalLen, raceCar;
 function initTrackRefs(){
   routePath = document.querySelector('#route');
@@ -576,7 +571,7 @@ function updateCarProgress(){
   placeCarByProgress(t);
 }
 
-// ===== RENDERIZAÇÃO =====
+/* ===== Renderização ===== */
 function renderQuestion(){
   const q = questions[state.current];
   $('#questionText').textContent = q.q;
@@ -598,17 +593,6 @@ function handleAnswer(idx, el){
   const q = questions[state.current];
   const isCorrect = idx === q.answer;
 
-  // Armazena a resposta
-  state.answers.push({
-    pergunta: state.current + 1,
-    pergunta_texto: q.q,
-    resposta_escolhida: idx,
-    resposta_texto: q.options[idx],
-    resposta_correta: q.answer,
-    resposta_correta_texto: q.options[q.answer],
-    acertou: isCorrect
-  });
-
   if (isCorrect){
     state.score += 10; state.hits += 1;
     $('#feedback').textContent = '✔ Resposta correta! +10 pontos';
@@ -620,12 +604,12 @@ function handleAnswer(idx, el){
     $('#feedback').className = 'feedback no';
     el.classList.add('wrong');
     // destaca também a correta
-    const buttons = $('.option');
+    const buttons = $$('.option');
     if (buttons[q.answer]) buttons[q.answer].classList.add('correct');
   }
 
   // bloqueia múltiplos cliques
-  $('.option').forEach(b=> b.disabled = true);
+  $$('.option').forEach(b=> b.disabled = true);
 
   // avança
   setTimeout(()=>{
@@ -638,9 +622,8 @@ function handleAnswer(idx, el){
   }, 900);
 }
 
-// ===== TELA FINAL =====
-async function finish(){
-  state.endTime = new Date();
+/* ===== Tela Final ===== */
+function finish(){
   updateCarProgress(); // garante posição final
 
   $('#outName').textContent = state.playerName;
@@ -671,7 +654,7 @@ async function finish(){
   launchConfetti(); // celebração
 }
 
-// ===== LARGADA (start lights) =====
+/* ===== Largada (start lights) ===== */
 async function startSequenceThenBegin(){
   showScreen('#screen-quiz');
   initTrackRefs();          // garante refs do SVG no momento da tela
@@ -697,12 +680,11 @@ async function startSequenceThenBegin(){
   go.style.opacity = '0';
 
   // inicia a corrida
-  state.startTime = new Date();
   renderQuestion();
 }
 function wait(ms){ return new Promise(res=> setTimeout(res, ms)); }
 
-// ===== CONFETE =====
+/* ===== Confete ===== */
 function launchConfetti(){
   const container = $('#confetti');
   container.innerHTML = '';
@@ -727,12 +709,9 @@ function launchConfetti(){
   setTimeout(()=> container.innerHTML = '', 8000);
 }
 
-// ===== RESET =====
+/* ===== Reset ===== */
 function resetGame(){
-  state = { 
-    playerName:'', cpf:'', score:0, current:0, hits:0, miss:0, 
-    startTime: null, endTime: null, answers: []
-  };
+  state = { playerName:'', cpf:'', score:0, current:0, hits:0, miss:0 };
   $('#playerName').value = '';
   $('#playerCPF').value  = '';
   $('#btnStart').disabled= true;
@@ -741,19 +720,11 @@ function resetGame(){
   showScreen('#screen-start');
 }
 
-// ===== INICIALIZAÇÃO & EVENTOS =====
+/* ===== Inicialização & Eventos ===== */
 window.addEventListener('DOMContentLoaded', ()=>{
-  console.log('DOM carregado');
-
   const nameInput = $('#playerName');
   const cpfInput  = $('#playerCPF');
   const btnStart  = $('#btnStart');
-
-  console.log('Elementos encontrados:', {
-    nameInput: !!nameInput,
-    cpfInput: !!cpfInput,
-    btnStart: !!btnStart
-  });
 
   function checkReady(){
     const okName = nameInput.value.trim().length >= 2;
@@ -766,25 +737,20 @@ window.addEventListener('DOMContentLoaded', ()=>{
     // status visuais
     $('#nameStatus').className = 'status ' + (okName ? 'ok':'no');
     $('#cpfStatus').className  = 'status ' + (okCPF  ? 'ok':'no');
-    
-    console.log('Check ready:', { okName, okCPF, disabled: btnStart.disabled });
   }
 
   nameInput.addEventListener('input', checkReady);
   cpfInput .addEventListener('input', checkReady);
 
   btnStart.addEventListener('click', ()=>{
-    console.log('Botão iniciar clicado');
     state.playerName = nameInput.value.trim();
     state.cpf        = cpfInput.value;
     showScreen('#screen-rules');
   });
 
   $('#btnGoQuiz').addEventListener('click', ()=>{
-    console.log('Iniciando quiz');
     // zera estado e começa sequência de largada
     state.score = 0; state.current = 0; state.hits = 0; state.miss = 0;
-    state.answers = []; state.startTime = null; state.endTime = null;
     startSequenceThenBegin();
   });
 
@@ -797,10 +763,80 @@ window.addEventListener('DOMContentLoaded', ()=>{
       updateCarProgress();
     }
   }, {passive:true});
-
-  // Executa check inicial
-  checkReady();
 });
-</script>
-</body>
+
+</script><div id="ranking-container"></div><script>
+const supabaseUrl = 'https://phmpoizlkrwzouydkopp.supabase.co';
+const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBobXBvaXpsa3J3em91eWRrb3BwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTYxNDExOTMsImV4cCI6MjA3MTcxNzE5M30.fcbEM3ekrx6UP-MPWA7xqLzvxPihzEJQhCQxEKt1Qf0';
+const supabase = supabase.createClient(supabaseUrl, supabaseKey);
+
+async function verificarConexao() {
+  try {
+    const { data, error } = await supabase.from('jogadores').select('*').limit(1);
+    if (error) throw error;
+    return true;
+  } catch (error) {
+    console.error('Erro na conexão:', error);
+    return false;
+  }
+}
+
+async function salvarJogador(nome, cpf, pontuacao, acertos, erros, respostas) {
+  const { data, error } = await supabase
+    .from('jogadores')
+    .upsert([{ nome, cpf, pontuacao, acertos, erros, respostas }], { onConflict: ['cpf'] });
+  if (error) {
+    console.error('Erro ao salvar jogador:', error);
+    return false;
+  }
+  return true;
+}
+
+async function buscarRanking(limite = 10) {
+  const { data, error } = await supabase
+    .from('jogadores')
+    .select('nome, pontuacao, acertos, erros')
+    .order('pontuacao', { ascending: false })
+    .limit(limite);
+  if (error) {
+    console.error('Erro ao buscar ranking:', error);
+    return [];
+  }
+  return data;
+}
+
+async function atualizarStatusConexao() {
+  const conectado = await verificarConexao();
+  const statusElement = document.getElementById('status-conexao');
+  if (statusElement) {
+    statusElement.textContent = conectado ? "Conectado ao Supabase ✔" : "Desconectado do Supabase ✖";
+    statusElement.style.color = conectado ? "green" : "red";
+  }
+}
+
+async function exibirRanking() {
+  const ranking = await buscarRanking(10);
+  const rankingElement = document.getElementById('ranking-container');
+  let html = '<h2>Ranking Top 10</h2><table>';
+  html += '<tr><th>Posição</th><th>Nome</th><th>Pontuação</th><th>Acertos</th><th>Erros</th></tr>';
+  ranking.forEach((jogador, index) => {
+    html += `
+      <tr>
+        <td>${index + 1}</td>
+        <td>${jogador.nome}</td>
+        <td>${jogador.pontuacao}</td>
+        <td>${jogador.acertos}</td>
+        <td>${jogador.erros}</td>
+      </tr>
+    `;
+  });
+  html += '</table>';
+  rankingElement.innerHTML = html;
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  atualizarStatusConexao();
+  exibirRanking();
+});
+</script></body>
 </html>
